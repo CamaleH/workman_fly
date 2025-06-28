@@ -1,0 +1,10 @@
+{
+  "name": "workman_fly",
+  "scripts": {
+    "build": "tsc && npm run copy-public",
+    "copy-public": "cp -r public/* dist/"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
