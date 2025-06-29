@@ -6,7 +6,9 @@
     "rootDir": "src",
     "strict": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "strictNullChecks": true,
+    "allowImportingTsExtensions": true
   },
   "include": ["src/*"]
 }
