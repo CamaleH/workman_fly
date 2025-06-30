@@ -74,9 +74,10 @@ function check_valid(key_binding: HTMLSelectElement[]): [boolean, string] {
   return [valid, info];
 }
 
-export function createLayoutSetter(): HTMLDivElement {
+export function createLayoutSetter(if_valid: (key_binds: string[]) => void): HTMLDivElement {
   // Prepare select.
   const layout_sel = document.createElement('select');
+  layout_sel.name = 'layout_sel';
   ['Workman', 'Devorak', 'Colemak', 'Qwerty', 'Custom'].forEach(opt => {
     const option = document.createElement('option');
     option.value = opt.toLocaleLowerCase();
@@ -87,6 +88,7 @@ export function createLayoutSetter(): HTMLDivElement {
   const key_binding: HTMLSelectElement[] = [];
   for (let i = 0; i < 30; i++) {
     const key_sel = document.createElement('select');
+    key_sel.name = `K${i+1}_sel`;
     all_keys.forEach(opt => {
       const option = document.createElement('option');
       option.value = opt;
@@ -104,6 +106,7 @@ export function createLayoutSetter(): HTMLDivElement {
     if (selected != 'custom') {
       set_preset(key_binding, selected);
       info.textContent = 'Info: valid';
+      if_valid(preset[selected]);
     }
   });
 
@@ -112,6 +115,13 @@ export function createLayoutSetter(): HTMLDivElement {
       layout_sel.value = 'custom';
       const res = check_valid(key_binding);
       info.textContent = "Info: " + res[1];
+      if (res[0]) {
+        const key_binds: string[] = [];
+        for (let i = 0; i < 30; i++) {
+          key_binds.push(key_binding[i].value);
+        }
+        if_valid(key_binds);
+      }
     })
   }
 
@@ -129,6 +139,7 @@ export function createLayoutSetter(): HTMLDivElement {
   row.appendChild(layout_sel);
   info.style.marginLeft = '16px';
   row.appendChild(info);
+  row.style.marginBottom = '8px';
   container.appendChild(row);
 
   const grid = document.createElement('div');
@@ -153,6 +164,7 @@ export function createLayoutSetter(): HTMLDivElement {
   }
 
   container.appendChild(grid);
+  container.style.marginBottom = '16px';
 
   return container;
 }

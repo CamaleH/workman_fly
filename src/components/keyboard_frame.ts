@@ -3,22 +3,49 @@ export type KeyConfig = {
   text2: string;
 };
 
-export function std_keyconfig(): KeyConfig[] {
-  const T1 = ["Q", "D", "R", "W", "B", "J", "F", "U", "P", ":",
-    "A", "S", "H", "T", "G", "Y", "N", "E", "O", "I",
-    "Z", "X", "M", "C", "V", "K", "L", "<", ">", "?"];
-  const T2 = [" ", " ", " ", " ", " ", " ", " ", " ", " ", ";",
-    " ", " ", " ", " ", " ", " ", " ", " ", " ", " ",
-    " ", " ", " ", " ", " ", " ", " ", ",", ".", "/"];
+type Key = {
+  group: SVGGElement;
+  rect: SVGRectElement;
+  text1: SVGTextElement;
+  text2: SVGTextElement;
+};
+
+function reset_key(config: KeyConfig, key: Key) {
+  key.text1.textContent = config.text1;
+  key.text2.textContent = config.text2;
+}
+
+export function cfg_keybinds(keybinds: string[]): KeyConfig[] {
   const configs: KeyConfig[] = [];
   for (let i = 0; i < 30; i++) {
-    const config = { text1: T1[i], text2: T2[i] };
-    configs.push(config);
+    switch (keybinds[i]) {
+      case ';':
+        configs.push({ text1: ':', text2: ';' });
+        break;
+      case ',':
+        configs.push({ text1: '<', text2: ',' });
+        break;
+      case '.':
+        configs.push({ text1: '>', text2: '.' });
+        break;
+      case '/':
+        configs.push({ text1: '?', text2: '/' });
+        break;
+      default:
+        configs.push({ text1: keybinds[i], text2: '' });
+    }
   }
   return configs;
 }
 
-export function createKeyBoard(keyconfig: KeyConfig[]): SVGSVGElement{
+export function std_keyconfig(): KeyConfig[] {
+  const workman = ["Q", "D", "R", "W", "B", "J", "F", "U", "P", ";",
+    "A", "S", "H", "T", "G", "Y", "N", "E", "O", "I",
+    "Z", "X", "M", "C", "V", "K", "L", ",", ".", "/"];
+  return cfg_keybinds(workman);
+}
+
+export function createKeyBoard(keyconfig: KeyConfig[]): [(configs: KeyConfig[]) => void, SVGSVGElement] {
   const svgNS = "http://www.w3.org/2000/svg"
   const top = document.createElementNS(svgNS, "svg");
   top.setAttribute("x", "0");
@@ -29,10 +56,19 @@ export function createKeyBoard(keyconfig: KeyConfig[]): SVGSVGElement{
 
   let x = 0;
   let y = 0;
+  const keys: Key[] = [];
   for (let i = 0; i < 30; i++) {
-    const group = document.createElementNS(svgNS, "g");
-    group.setAttribute("transform", "translate("+x.toString()+","+y.toString()+")");
-    top.appendChild(group);
+    const key = {
+      group: document.createElementNS(svgNS, "g"),
+      rect: document.createElementNS(svgNS, "rect"),
+      text1: document.createElementNS(svgNS, "text"),
+      text2: document.createElementNS(svgNS, "text")
+    };
+    top.appendChild(key.group);
+    key.group.appendChild(key.rect);
+    key.group.appendChild(key.text1);
+    key.group.appendChild(key.text2);
+    keys.push(key);
 
     // hover-in action.
     // group.addEventListener("mouseenter", () => {
@@ -43,31 +79,30 @@ export function createKeyBoard(keyconfig: KeyConfig[]): SVGSVGElement{
     //   console.log("Left key " + i.toString());
     // })
 
-    const key = document.createElementNS(svgNS, "rect");
-    key.setAttribute("x", "0");
-    key.setAttribute("y", "0");
-    key.setAttribute("rx", "8");
-    key.setAttribute("ry", "8");
-    key.classList.add("default-key");
-    group.appendChild(key);
+    key.group.setAttribute("transform", "translate(" + x.toString() + "," + y.toString() + ")");
 
-    const text1 = document.createElementNS(svgNS, "text");
+    const keyrect = key.rect;
+    keyrect.setAttribute("x", "0");
+    keyrect.setAttribute("y", "0");
+    keyrect.setAttribute("rx", "8");
+    keyrect.setAttribute("ry", "8");
+    keyrect.classList.add("default-key");
+
+    const text1 = key.text1;
     text1.setAttribute("x", "10");
     text1.setAttribute("y", "12");
     text1.setAttribute("text-anchor", "middle");
     text1.setAttribute("dominant-baseline", "middle");
     text1.setAttribute("direction", "ltr");
     text1.textContent = keyconfig[i].text1;
-    group.appendChild(text1);
 
-    const text2 = document.createElementNS(svgNS, "text");
+    const text2 = key.text2;
     text2.setAttribute("x", "10");
     text2.setAttribute("y", "27");
     text2.setAttribute("text-anchor", "middle");
     text2.setAttribute("dominant-baseline", "middle");
     text2.setAttribute("direction", "ltr");
     text2.textContent = keyconfig[i].text2;
-    group.appendChild(text2);
 
     if (i == 9) {
       x = 10;
@@ -79,6 +114,12 @@ export function createKeyBoard(keyconfig: KeyConfig[]): SVGSVGElement{
       x += 40;
     }
   }
-  return top;
+
+  const reset = (configs: KeyConfig[]) => {
+    for(let i =0; i<30; i++) {
+      reset_key(configs[i], keys[i]);
+    }
+  };
+  return [reset, top];
 }
 
