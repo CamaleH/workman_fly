@@ -30,31 +30,44 @@ export function createKeyBoard(keyconfig: KeyConfig[]): SVGSVGElement{
   let x = 0;
   let y = 0;
   for (let i = 0; i < 30; i++) {
+    const group = document.createElementNS(svgNS, "g");
+    group.setAttribute("transform", "translate("+x.toString()+","+y.toString()+")");
+    top.appendChild(group);
+
+    // hover-in action.
+    // group.addEventListener("mouseenter", () => {
+    //   console.log("Hovered over key " + i.toString());
+    // })
+    // hover-out action.
+    // group.addEventListener("mouseleave", () => {
+    //   console.log("Left key " + i.toString());
+    // })
+
     const key = document.createElementNS(svgNS, "rect");
-    key.setAttribute("x", x.toString());
-    key.setAttribute("y", y.toString());
+    key.setAttribute("x", "0");
+    key.setAttribute("y", "0");
     key.setAttribute("rx", "8");
     key.setAttribute("ry", "8");
     key.classList.add("default-key");
-    top.appendChild(key);
+    group.appendChild(key);
 
     const text1 = document.createElementNS(svgNS, "text");
-    text1.setAttribute("x", (x + 10).toString());
-    text1.setAttribute("y", (y + 12).toString());
+    text1.setAttribute("x", "10");
+    text1.setAttribute("y", "12");
     text1.setAttribute("text-anchor", "middle");
     text1.setAttribute("dominant-baseline", "middle");
     text1.setAttribute("direction", "ltr");
     text1.textContent = keyconfig[i].text1;
-    top.appendChild(text1);
+    group.appendChild(text1);
 
     const text2 = document.createElementNS(svgNS, "text");
-    text2.setAttribute("x", (x + 10).toString());
-    text2.setAttribute("y", (y + 27).toString());
+    text2.setAttribute("x", "10");
+    text2.setAttribute("y", "27");
     text2.setAttribute("text-anchor", "middle");
     text2.setAttribute("dominant-baseline", "middle");
     text2.setAttribute("direction", "ltr");
     text2.textContent = keyconfig[i].text2;
-    top.appendChild(text2);
+    group.appendChild(text2);
 
     if (i == 9) {
       x = 10;
